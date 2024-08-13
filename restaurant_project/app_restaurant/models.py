@@ -19,8 +19,8 @@ class Table(models.Model):
 
 
     ]
-    table_no= models.PositiveIntegerField(unique=True,max_length=5)
-    capacity= models.PositiveIntegerField(max_length=6)
+    table_no= models.PositiveIntegerField(unique=True)
+    capacity= models.PositiveIntegerField()
     availability_status = models.CharField(choices=AVAILABILITY_CHOICES,max_length=20)
     managed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='table_managed')
 
@@ -36,7 +36,7 @@ class MenuItem(models.Model):
      item_availability=models.BooleanField(default=False)
 
      def __str__(self):
-        return self.name + self.item_availability
+        return self.name 
      
 
 
