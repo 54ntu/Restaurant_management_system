@@ -6,4 +6,4 @@ from .models import UserModel
 
 @admin.register(UserModel)
 class UserModelAdmin(UserAdmin):
-    list_display = ('email', 'username', 'password', "is_active", "is_staff", "is_superuser","roles")
+    list_display = ('email', 'username', 'password',"roles", "is_active", "is_staff", "is_superuser",)
