@@ -15,7 +15,7 @@ class MenuItemAdminModel(admin.ModelAdmin):
     list_display = ('id','category','name','price','item_availability')
 
 
-class OrderItemInline(admin.TabularInline):
+class OrderItemInline(admin.TabularInline): 
     model = OrderItem
     extra = 3
 
