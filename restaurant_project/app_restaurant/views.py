@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from .models import Category,Table
-from .serializers import CategorySerializer,TableSerializer
+from .models import Category,Table,MenuItem
+from .serializers import CategorySerializer,TableSerializer,MenuItemSerializer
 from .permissions import IsAdminOrReadOnly
 
 # Create your views here.
@@ -25,3 +25,11 @@ class TableViewsets(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return Table.objects.filter(managed_by=user) # this one will filter out the data related to the logged in user
+
+
+
+class MenuItemViewset(ModelViewSet):
+    queryset = MenuItem.objects.all()
+    serializer_class = MenuItemSerializer
+    permission_classes = [IsAuthenticated]
+    

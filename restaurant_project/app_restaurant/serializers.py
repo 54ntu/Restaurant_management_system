@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category,Table
+from .models import Category,Table,MenuItem
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -21,3 +21,13 @@ class TableSerializer(serializers.ModelSerializer):
         model = Table
         fields = ['id', 'table_no', 'capacity',
                   'availability_status', 'managed_by',]
+
+
+class MenuItemSerializer(serializers.ModelSerializer):
+        category= serializers.StringRelatedField()
+        category_id= serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(),source='category')
+        class Meta:
+            model = MenuItem
+            fields = ['id', 'category', 'category_id', 'name',
+                      'price', 'item_availability']
+

@@ -23,23 +23,19 @@ class Table(models.Model):
     availability_status = models.CharField(choices=AVAILABILITY_CHOICES,max_length=20)
     managed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='table_managed')
 
-    
-    
-
 
 class MenuItem(models.Model):
      category = models.ForeignKey(Category,on_delete=models.CASCADE)
      name=models.CharField(max_length=100,)
      price = models.DecimalField(max_digits=10,decimal_places=2)
-     item_availability=models.BooleanField(default=False)
+     item_availability=models.BooleanField(default=True)
 
      def __str__(self):
         return self.name 
-     
 
 
 class Order(models.Model):
-    ORDER_STATUS =  [
+    ORDER_STATUS =[
         ('delivered','DELIVERED'),
         ('cancelled','CANCELLED'),
         ('pending', 'PENDING'),
@@ -58,8 +54,6 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10 , decimal_places=2)
 
-
-
-
     def __str__(self):
         return self.quantity + self.menu_item.name
+    
