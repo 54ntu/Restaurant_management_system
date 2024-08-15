@@ -17,17 +17,17 @@ class UserViewsets(viewsets.GenericViewSet, mixins.CreateModelMixin):
     serializer_class = RegisterUserSerializer
 
 
-    #i am overriding the default create method so that i can check only the super_user has the ability to add waiter or reception
-    # def create(self,request,*args,**kwargs):
-    #     #check if the requesting user  is a superuser
-    #     if not request.user.is_superuser:
-    #         return Response(
-    #             {
-    #                 "detail":"you do not have permissions to perform this action."
-    #             },
-    #             status=status.HTTP_403_FORBIDDEN
-    #         )
-    #     return super().create(request,*args,**kwargs)
+    # i am overriding the default create method so that i can check only the super_user has the ability to add waiter or reception
+    def create(self,request,*args,**kwargs):
+        #check if the requesting user  is a superuser
+        if not request.user.is_superuser:
+            return Response(
+                {
+                    "detail":"you do not have permissions to perform this action."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().create(request,*args,**kwargs)
 
 
 

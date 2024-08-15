@@ -31,3 +31,8 @@ class MenuItemSerializer(serializers.ModelSerializer):
             fields = ['id', 'category', 'category_id', 'name',
                       'price', 'item_availability']
 
+
+
+
+class OrderSerializer(serializers.ModelSerializer):
+     pass
