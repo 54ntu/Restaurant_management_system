@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from .models import Category,Table,MenuItem
-from .serializers import CategorySerializer,TableSerializer,MenuItemSerializer
+from .models import Category,Table,MenuItem,Order,OrderItem
+from .serializers import CategorySerializer,TableSerializer,MenuItemSerializer,OrderSerializer,OrderItemSerializer
 from .permissions import IsAdminOrReadOnly
+from rest_framework.response import Response
 
 # Create your views here.
 class CategoryViewstets(ModelViewSet):
@@ -20,7 +21,7 @@ class TableViewsets(ModelViewSet):
 
     def perform_create(self, serializer):
         #automatically set the  managed_by  field to  the currently  logged in user
-        serializer.save(managed_by= self.request.user,managed_by_id = self.request.user.id)
+        serializer.save(managed_by= self.request.user)
 
     def get_queryset(self):
         user = self.request.user
@@ -32,4 +33,10 @@ class MenuItemViewset(ModelViewSet):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
     permission_classes = [IsAuthenticated]
+
+
+class OrderViewset(ModelViewSet):
+    queryset= Order.objects.all()
+    serializer_class = OrderSerializer
+    
     

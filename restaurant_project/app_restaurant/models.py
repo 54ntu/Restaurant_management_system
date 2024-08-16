@@ -34,12 +34,12 @@ class MenuItem(models.Model):
         return self.name 
 
 
+
 class Order(models.Model):
     ORDER_STATUS =[
         ('delivered','DELIVERED'),
         ('cancelled','CANCELLED'),
         ('pending', 'PENDING'),
-
     ]
     table_assigned= models.ForeignKey(Table,on_delete=models.CASCADE)
     order_taken_by =models.ForeignKey(User,on_delete=models.CASCADE)
@@ -48,12 +48,22 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
+
+    @property
+    def total_price(self):
+        total_amount= 0
+        for item in self.order_items.all():
+            total_amount = total_amount+ item.price
+        return total_amount
+
+
 class OrderItem(models.Model):
-    order_id = models.ForeignKey(Order,on_delete=models.CASCADE,related_name='items')
+    # In Django's ORM, the related_name attribute in a ForeignKey field defines the name of the reverse relation from the related model back to the model that defines the foreign key.
+    order_id = models.ForeignKey(Order,on_delete=models.CASCADE,related_name='order_items')
     menu_item = models.ForeignKey(MenuItem,on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10 , decimal_places=2)
 
     def __str__(self):
-        return self.quantity + self.menu_item.name
+        return self.quantity
     
