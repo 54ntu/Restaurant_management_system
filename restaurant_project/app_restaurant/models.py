@@ -67,3 +67,27 @@ class OrderItem(models.Model):
     def __str__(self):
         return self.quantity
     
+
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,)
+
+
+    @property
+    def total_bill(self):
+        total_amount = 0
+        for item in self.cart_items.all():
+            total_amount = total_amount + item.total_menuItem_price
+        return total_amount
+
+
+
+class CartItem(models.Model):
+    cart= models.ForeignKey(Cart,on_delete=models.CASCADE, related_name="cart_items")
+    menuItem = models.ForeignKey(MenuItem,on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+
+
+    @property
+    def total_menuItem_price(self):
+        return self.quantity * self.menuItem.price

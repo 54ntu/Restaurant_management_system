@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category,Table,MenuItem,Order,OrderItem
+from .models import Category,Table,MenuItem,Order,OrderItem,Cart,CartItem
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -55,3 +55,47 @@ class OrderSerializer(serializers.ModelSerializer):
      class Meta:
           model= Order
           fields=['id','table_assigned','order_items','order_taken_by','order_status','created_at','total_price']
+
+class CartItemSerializer(serializers.ModelSerializer):
+     cart_id = serializers.PrimaryKeyRelatedField(queryset=Cart.objects.all(),source="cart" )
+     MenuItem_id = serializers.PrimaryKeyRelatedField(
+         queryset=MenuItem.objects.all(), source="menuItem")
+     menuItem = MenuItemSerializer()
+
+     class Meta:
+          model = CartItem
+          fields = ('id', 'cart_id', 'MenuItem_id',
+                    'menuItem', 'quantity', 'total_menuItem_price')
+
+
+class CartSerializer(serializers.ModelSerializer):
+     user_id = serializers.PrimaryKeyRelatedField(queryset= User.objects.all(),source="user")
+     user = serializers.StringRelatedField()
+     cart_items = CartItemSerializer(many=True)
+
+
+     class Meta:
+          model = Cart
+          fields = ('id', 'user_id','user','cart_items','total_bill',)
+
+
+class AddToCartSerializer(serializers.ModelSerializer):
+     user = serializers.HiddenField(default = serializers.CurrentUserDefault())
+     menuItem_id = serializers.PrimaryKeyRelatedField(queryset = MenuItem.objects.all(),source= "menuItem")
+
+     class Meta:
+          model = CartItem
+          fields =('id','user','menuItem_id','quantity',)
+     
+     def create(self, validated_data):
+          user = validated_data.pop('user')
+          cart,_ = Cart.objects.get_or_create(user=user)
+          try:
+               cart_item = CartItem.objects.get(cart__user=user,menuItem= validated_data.get('menuItem'))
+               cart_item.quantity+= validated_data.get('quantity')
+               cart_item.save()
+          except CartItem.DoesNotExist:
+              #if the cartItem is not available ,create a new cart item
+              validated_data['cart']= cart
+          return super().create(validated_data)
+    
