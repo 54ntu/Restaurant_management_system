@@ -41,8 +41,11 @@ class Order(models.Model):
         ('cancelled','CANCELLED'),
         ('pending', 'PENDING'),
     ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    delivery_address = models.CharField(max_length=255)
     table_assigned= models.ForeignKey(Table,on_delete=models.CASCADE)
-    order_taken_by =models.ForeignKey(User,on_delete=models.CASCADE)
+    order_taken_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='orders_taken')
     order_status = models.CharField(choices=ORDER_STATUS,max_length=50)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -67,7 +70,9 @@ class OrderItem(models.Model):
     def __str__(self):
         return self.quantity
     
-
+    @property
+    def item_price(self):
+        return self.price * self.quantity
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,)

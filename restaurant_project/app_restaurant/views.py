@@ -4,8 +4,9 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 from .models import Category, Table, MenuItem, Order, OrderItem, Cart, CartItem
 from .serializers import (CategorySerializer, TableSerializer, MenuItemSerializer, OrderSerializer,
-                          OrderItemSerializer, CartSerializer, CartItemSerializer, AddToCartSerializer,)
+                          OrderItemSerializer, CartSerializer, CartItemSerializer, AddToCartSerializer,CreateOrderSerializer,)
 from .permissions import IsAdminOrReadOnly
+from rest_framework.permissions import SAFE_METHODS
 
 # Create your views here.
 
@@ -39,8 +40,20 @@ class MenuItemViewset(ModelViewSet):
 
 
 class OrderViewset(ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.prefetch_related('order_items').all()
     serializer_class = OrderSerializer
+    permission_classes=(IsAuthenticated,)
+
+
+    def get_queryset(self):
+        user = self.request.user
+        return self.queryset.filter(order_taken_by=user)
+    #this line of code filter out the order according to the logged in waiter or reception
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return OrderSerializer
+        return CreateOrderSerializer
 
 
 class CartView(GenericViewSet, ListAPIView):

@@ -34,13 +34,13 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-     order_id = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all(),source="order_id")
+     order_id = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
      menu_item_id= serializers.PrimaryKeyRelatedField(queryset=MenuItem.objects.all(),source="Menu_item" )
      menus = MenuItemSerializer()
 
      class Meta:
           model = OrderItem
-          fields =['id','order_id','menu_item_id','menus','quantity','price']
+          fields =['id','order_id','menu_item_id','menus','quantity','item_price']
     
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -55,6 +55,40 @@ class OrderSerializer(serializers.ModelSerializer):
      class Meta:
           model= Order
           fields=['id','table_assigned','order_items','order_taken_by','order_status','created_at','total_price']
+
+
+
+class CreateOrderSerializer(serializers.ModelSerializer):
+     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+     delivery_address = serializers.CharField()
+
+     class Meta:
+          model = Order
+          fields=[
+               'id',
+               'user',
+               'delivery_address',
+          ]
+
+
+     def create(self, validated_data):
+          user = validated_data.pop('user')
+          cart = Cart.objects.get(user = validated_data.get('user'))
+          cart_items = CartItem.objects.filter(cart=cart)
+          order = Order.objects.create(user=user,**validated_data)
+          order_items_objects=[]
+          for item in cart_items:
+               order_item = OrderItem(
+                    order= order,
+                    menuItem = item.menuItem,
+                    quantity = item.quantity,
+                    price = item.total_menuItem_price
+               )
+          order_items_objects.append(order_item)
+          OrderItem.objects.bulk_create(order_items_objects)
+          cart.delete()
+          Cart.objects.get_or_create(user=validated_data.get('user'))
+          return order
 
 class CartItemSerializer(serializers.ModelSerializer):
      cart_id = serializers.PrimaryKeyRelatedField(queryset=Cart.objects.all(),source="cart" )
