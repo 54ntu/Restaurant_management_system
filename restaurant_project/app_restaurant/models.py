@@ -13,9 +13,12 @@ class Category(models.Model):
     
 
 class Table(models.Model):
+    OCCUPPIED_STATS = "OCCUPPIED"
+    AVAILABLE_STATS = "AVAILABLE"
+    
     AVAILABILITY_CHOICES= [
-        ('occuppied','OCCUPPIED'),
-        ('available', 'AVAILABLE'),
+        (OCCUPPIED_STATS, 'OCCUPPIED'),
+        (AVAILABLE_STATS, 'AVAILABLE'),
     ]
     
     table_no= models.PositiveIntegerField(unique=True)
@@ -36,17 +39,21 @@ class MenuItem(models.Model):
 
 
 class Order(models.Model):
+    PENDING_CHOICE = "PENDING"
+    DELIVERED_CHOICE = "DELIVERED"
+    CANCELLED_CHOICE = "CANCELLED"
+
     ORDER_STATUS =[
-        ('delivered','DELIVERED'),
-        ('cancelled','CANCELLED'),
-        ('pending', 'PENDING'),
+        (DELIVERED_CHOICE, 'DELIVERED'),
+        (CANCELLED_CHOICE, 'CANCELLED'),
+        (PENDING_CHOICE, 'PENDING'),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    delivery_address = models.CharField(max_length=255)
     table_assigned= models.ForeignKey(Table,on_delete=models.CASCADE)
     order_taken_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='orders_taken')
     order_status = models.CharField(choices=ORDER_STATUS,max_length=50)
+    payment_status= models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -68,11 +75,11 @@ class OrderItem(models.Model):
     price = models.DecimalField(max_digits=10 , decimal_places=2)
 
     def __str__(self):
-        return self.quantity
+        return f"{self.menu_item.name} ({self.quantity})"
     
     @property
     def item_price(self):
-        return self.price * self.quantity
+        return self.quantity* self.menu_item.price
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,)
@@ -84,6 +91,13 @@ class Cart(models.Model):
         for item in self.cart_items.all():
             total_amount = total_amount + item.total_menuItem_price
         return total_amount
+    
+    @property
+    def subTotal_items(self):
+        total_items = 0
+        for item in self.cart_items.all():
+            total_items = total_items+item.quantity
+        return total_items
 
 
 
