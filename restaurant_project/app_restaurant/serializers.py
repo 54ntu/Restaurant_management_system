@@ -157,6 +157,7 @@ class UpdatePaymentSerializer(serializers.ModelSerializer):
 
 
     def update(self, instance:Order, validated_data):
+        instance.payment_status = Order.payment_status
         table = instance.table_assigned
         table.availability_status = Table.AVAILABLE_STATS
         table.save()

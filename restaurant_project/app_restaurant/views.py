@@ -17,23 +17,23 @@ from rest_framework.response import Response
 class CategoryViewstets(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    # here normal users like waiter or reception doesnot has the power to add or update or delete
+    # here normal users like waiter or reception doesnot have the power to add or update or delete
     permission_classes = (IsAuthenticated, IsAdminOrReadOnly)
 
 
 class TableViewsets(ModelViewSet):
     queryset = Table.objects.all()
     serializer_class = TableSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsAdminOrReadOnly,]
 
     def perform_create(self, serializer):
         # automatically set the  managed_by  field to  the currently  logged in user
         serializer.save(managed_by=self.request.user)
 
     def get_queryset(self):
-        user = self.request.user
+        # user = self.request.user
         # this one will filter out the data related to the logged in user
-        return Table.objects.filter(managed_by=user)
+        return Table.objects.all()
 
 
 class MenuItemViewset(ModelViewSet):
